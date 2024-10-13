@@ -1,4 +1,3 @@
-// index.js
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -20,20 +19,28 @@ app.use(bodyParser.json());
 // Connect to the database
 connectDB();
 
-// Test route
+/**
+ * @route GET /
+ * @description A test route to verify that the server is running.
+ * @returns {string} A simple message indicating that the server is running.
+ */
 app.get("/", (req, res) => {
   res.send("Hello, World! The server is running!");
 });
 
-// Use the crypto routes
+// Use the crypto routes for handling API requests
 app.use("/api/crypto", cryptoRoutes);
 
-// Schedule the job to run every 2 hours
+/**
+ * @description Schedules a background job to fetch and save cryptocurrency data every 2 hours using node-cron.
+ * The cron job runs at the top of every 2nd hour.
+ * @cronExpression "0 */2 * * *" - Runs every 2 hours at minute 0.
+ */
 cron.schedule("0 */2 * * *", async () => {
   console.log("Fetching cryptocurrency data...");
   try {
-    const cryptoData = await fetchCryptoData(); // Fetch data
-    await saveCryptoData(cryptoData); // Save data to the database
+    const cryptoData = await fetchCryptoData(); // Fetch data from the CoinGecko API
+    await saveCryptoData(cryptoData); // Save the fetched data to the database
     console.log("Crypto data successfully fetched and saved.");
   } catch (error) {
     console.error("Error during scheduled crypto data fetch:", error.message);
@@ -42,7 +49,9 @@ cron.schedule("0 */2 * * *", async () => {
 
 const PORT = process.env.PORT || 3000;
 
-// Start the server
+/**
+ * @description Starts the server on the specified port and logs a message to the console.
+ */
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

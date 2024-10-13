@@ -1,4 +1,3 @@
-// routes/cryptoRouter.js
 const express = require("express");
 const router = express.Router();
 const {
@@ -8,7 +7,12 @@ const {
   getCryptoPriceDeviation,
 } = require("../controllers/cryptoController");
 
-// Route to fetch, save, and respond with cryptocurrency data
+/**
+ * @route GET /api/crypto/fetch
+ * @description Fetches cryptocurrency data from the CoinGecko API, saves it to the database, and returns the data.
+ * @returns {Object} JSON object containing a success message and the cryptocurrency data.
+ * @throws {Object} 500 - Error message if data fetching from the API fails.
+ */
 router.get("/fetch", async (req, res) => {
   try {
     const cryptoData = await fetchCryptoData(); // Fetch the data from the CoinGecko API
@@ -25,7 +29,14 @@ router.get("/fetch", async (req, res) => {
   }
 });
 
-// Route to get stats about a specific cryptocurrency
+/**
+ * @route GET /api/crypto/stats
+ * @description Retrieves the latest statistics of a specific cryptocurrency.
+ * @query {string} coin - The name of the cryptocurrency (bitcoin, matic-network, ethereum).
+ * @returns {Object} JSON object containing the price, market cap, and 24-hour change of the specified cryptocurrency.
+ * @throws {Object} 400 - Error message if the coin parameter is invalid or missing.
+ * @throws {Object} 500 - Error message if retrieving cryptocurrency stats fails.
+ */
 router.get("/stats", async (req, res) => {
   const coin = req.query.coin;
   if (!coin || !["bitcoin", "matic-network", "ethereum"].includes(coin)) {
@@ -40,7 +51,14 @@ router.get("/stats", async (req, res) => {
   }
 });
 
-// Route to get the standard deviation of cryptocurrency prices
+/**
+ * @route GET /api/crypto/deviation
+ * @description Calculates the standard deviation of the price of the requested cryptocurrency for the last 100 records.
+ * @query {string} coin - The name of the cryptocurrency (bitcoin, matic-network, ethereum).
+ * @returns {Object} JSON object containing the standard deviation of the price or a message if there is insufficient data.
+ * @throws {Object} 400 - Error message if the coin parameter is invalid or missing.
+ * @throws {Object} 500 - Error message if the calculation of the cryptocurrency price deviation fails.
+ */
 router.get("/deviation", async (req, res) => {
   const coin = req.query.coin;
   if (!coin || !["bitcoin", "matic-network", "ethereum"].includes(coin)) {

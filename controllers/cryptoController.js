@@ -1,8 +1,11 @@
-// controllers/cryptoController.js
 const axios = require("axios");
 const Crypto = require("../models/cryptoSchema");
 
-// Helper function to calculate standard deviation
+/**
+ * Helper function to calculate the standard deviation of a set of prices.
+ * @param {number[]} prices - An array of cryptocurrency prices.
+ * @returns {number} The standard deviation of the prices.
+ */
 const calculateStandardDeviation = (prices) => {
   const mean = prices.reduce((sum, value) => sum + value, 0) / prices.length;
   const squaredDiffs = prices.map((value) => Math.pow(value - mean, 2));
@@ -11,6 +14,12 @@ const calculateStandardDeviation = (prices) => {
   return Math.sqrt(variance);
 };
 
+/**
+ * Fetches the current price, market cap, and 24-hour change for specified cryptocurrencies from the CoinGecko API.
+ * @async
+ * @returns {Promise<Object[]>} An array of objects containing cryptocurrency data (name, price, market cap, and 24-hour change).
+ * @throws Will throw an error if the data fetching from CoinGecko fails.
+ */
 const fetchCryptoData = async () => {
   const coins = ["bitcoin", "matic-network", "ethereum"];
   try {
@@ -43,11 +52,24 @@ const fetchCryptoData = async () => {
   }
 };
 
+/**
+ * Saves cryptocurrency data to the database.
+ * @async
+ * @param {Object[]} cryptoData - An array of objects containing cryptocurrency data.
+ * @returns {Promise<void>} A promise that resolves when the data is successfully saved.
+ */
 const saveCryptoData = async (cryptoData) => {
   await Crypto.deleteMany(); // Clear old data
   await Crypto.insertMany(cryptoData); // Insert new data
 };
 
+/**
+ * Retrieves the latest statistics for a specific cryptocurrency.
+ * @async
+ * @param {string} coin - The name of the cryptocurrency (e.g., 'bitcoin', 'matic-network', 'ethereum').
+ * @returns {Promise<Object>} An object containing the price, market cap, and 24-hour change of the cryptocurrency.
+ * @throws Will throw an error if the cryptocurrency data is not found.
+ */
 const getCryptoStats = async (coin) => {
   try {
     const crypto = await Crypto.findOne({ name: coin });
@@ -66,6 +88,13 @@ const getCryptoStats = async (coin) => {
   }
 };
 
+/**
+ * Calculates the standard deviation of the cryptocurrency's price for the last 100 records.
+ * @async
+ * @param {string} coin - The name of the cryptocurrency (e.g., 'bitcoin', 'matic-network', 'ethereum').
+ * @returns {Promise<Object>} An object containing the standard deviation of the cryptocurrency's price or a message indicating insufficient data.
+ * @throws Will throw an error if the standard deviation calculation fails.
+ */
 const getCryptoPriceDeviation = async (coin) => {
   try {
     const prices = await Crypto.find({ name: coin })
