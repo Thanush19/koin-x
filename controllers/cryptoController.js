@@ -2,6 +2,15 @@
 const axios = require("axios");
 const Crypto = require("../models/cryptoSchema");
 
+// Helper function to calculate standard deviation
+const calculateStandardDeviation = (prices) => {
+  const mean = prices.reduce((sum, value) => sum + value, 0) / prices.length;
+  const squaredDiffs = prices.map((value) => Math.pow(value - mean, 2));
+  const variance =
+    squaredDiffs.reduce((sum, value) => sum + value, 0) / prices.length;
+  return Math.sqrt(variance);
+};
+
 const fetchCryptoData = async () => {
   const coins = ["bitcoin", "matic-network", "ethereum"];
   try {
@@ -39,7 +48,47 @@ const saveCryptoData = async (cryptoData) => {
   await Crypto.insertMany(cryptoData); // Insert new data
 };
 
+const getCryptoStats = async (coin) => {
+  try {
+    const crypto = await Crypto.findOne({ name: coin });
+    if (!crypto) {
+      throw new Error("Cryptocurrency data not found");
+    }
+
+    return {
+      price: crypto.priceUSD,
+      marketCap: crypto.marketCapUSD,
+      "24hChange": crypto.change24h,
+    };
+  } catch (error) {
+    console.error("Error retrieving cryptocurrency stats:", error.message);
+    throw new Error("Failed to get cryptocurrency data");
+  }
+};
+
+const getCryptoPriceDeviation = async (coin) => {
+  try {
+    const prices = await Crypto.find({ name: coin })
+      .sort({ updatedAt: -1 }) // Sort by most recent data
+      .limit(100) // Get the last 100 records
+      .select("priceUSD"); // Only retrieve the price
+
+    const priceValues = prices.map((record) => record.priceUSD);
+    if (priceValues.length < 2) {
+      throw new Error("Not enough data to calculate standard deviation");
+    }
+
+    const deviation = calculateStandardDeviation(priceValues);
+    return deviation;
+  } catch (error) {
+    console.error("Error calculating standard deviation:", error.message);
+    throw new Error("Failed to calculate cryptocurrency price deviation");
+  }
+};
+
 module.exports = {
   fetchCryptoData,
   saveCryptoData,
+  getCryptoStats,
+  getCryptoPriceDeviation,
 };
