@@ -48,8 +48,12 @@ router.get("/deviation", async (req, res) => {
   }
 
   try {
-    const deviation = await getCryptoPriceDeviation(coin);
-    res.status(200).json({ deviation: deviation.toFixed(2) });
+    const result = await getCryptoPriceDeviation(coin);
+    if (result.message) {
+      // Handle the case when there isn't enough data to calculate the standard deviation
+      return res.status(200).json({ message: result.message });
+    }
+    res.status(200).json(result);
   } catch (error) {
     res
       .status(500)

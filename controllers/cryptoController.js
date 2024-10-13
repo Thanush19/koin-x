@@ -75,11 +75,20 @@ const getCryptoPriceDeviation = async (coin) => {
 
     const priceValues = prices.map((record) => record.priceUSD);
     if (priceValues.length < 2) {
-      throw new Error("Not enough data to calculate standard deviation");
+      // Calculate the next fetch time (assuming the background job runs every 2 hours)
+      const nextFetchTime = new Date(Date.now() + 2 * 60 * 60 * 1000); // 2 hours from now
+      const formattedTime = nextFetchTime.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      return {
+        message: `Not enough data to calculate standard deviation. Please try again later after ${formattedTime} when more data is collected.`,
+      };
     }
 
     const deviation = calculateStandardDeviation(priceValues);
-    return deviation;
+    return { deviation: deviation.toFixed(2) };
   } catch (error) {
     console.error("Error calculating standard deviation:", error.message);
     throw new Error("Failed to calculate cryptocurrency price deviation");
