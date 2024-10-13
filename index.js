@@ -34,7 +34,7 @@ app.use("/api/crypto", cryptoRoutes);
 /**
  * @description Schedules a background job to fetch and save cryptocurrency data every 2 hours using node-cron.
  * The cron job runs at the top of every 2nd hour.
- * @cronExpression "0 */2 * * *" - Runs every 2 hours at minute 0.
+ *
  */
 cron.schedule("0 */2 * * *", async () => {
   console.log("Fetching cryptocurrency data...");
