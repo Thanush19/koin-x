@@ -11,7 +11,7 @@ const {
  * @route GET /api/crypto/fetch
  * @description Fetches cryptocurrency data from the CoinGecko API, saves it to the database, and returns the data.
  * @returns {Object} JSON object containing a success message and the cryptocurrency data.
- * @throws {Object} 500 - Error message if data fetching from the API fails.
+ * @throws {Object} 500 - Error message if the data fetching from the API fails.
  */
 router.get("/fetch", async (req, res) => {
   try {
